@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model CV {
+  id              String   @id @default(cuid())
+
+  // Candidate details
+  fullName        String
+  email           String
+  phone           String?
+  domain          String   // e.g. IT, Finance, HR, Marketing, Operations
+  experienceYears Int?
+  currentRole     String?
+  currentCompany  String?
+  education       String?
+  skills          String?  // free-text, comma separated
+  city            String?
+  notes           String?  // internal notes BK can add later
+
+  // Uploaded file (stored in Vercel Blob)
+  fileUrl         String
+  fileName        String
+  fileSize        Int?
+  fileType        String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([domain])
+  @@index([createdAt])
+  @@index([fullName])
+}
