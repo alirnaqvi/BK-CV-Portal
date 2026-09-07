@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import archiver from "archiver";
+import { get } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -83,9 +84,16 @@ export async function POST(request: NextRequest) {
 
     for (const cv of cvs) {
       try {
-        const res = await fetch(cv.fileUrl);
-        if (!res.ok) continue;
-        const arrayBuffer = await res.arrayBuffer();
+        if (!cv.filePathname) continue;
+
+        // Files live in a private Blob store, so they're read back with the
+        // SDK's get() (authenticated), not a plain fetch() of the stored URL.
+        const result = await get(cv.filePathname, { access: "private" });
+        if (!result || result.statusCode !== 200 || !result.stream) continue;
+
+        const arrayBuffer = await new Response(
+          result.stream as unknown as ReadableStream
+        ).arrayBuffer();
 
         let name = sanitizeFileName(`${cv.fullName} - ${cv.fileName}`);
         let finalName = name;

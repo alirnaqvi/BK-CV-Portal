@@ -12,6 +12,7 @@ export interface CVItem {
   city: string | null;
   notes: string | null;
   fileUrl: string;
+  filePathname: string;
   fileName: string;
   fileSize: number | null;
   fileType: string | null;

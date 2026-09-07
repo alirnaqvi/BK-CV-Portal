@@ -101,7 +101,7 @@ export function CVTable({
               </td>
               <td className="px-3 py-3 align-top">
                 <a
-                  href={item.fileUrl}
+                  href={`/api/cvs/${item.id}/file`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-brass-700 hover:underline"

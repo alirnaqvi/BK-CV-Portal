@@ -71,8 +71,11 @@ export async function POST(request: NextRequest) {
     const safeName = file.name.replace(/[^a-zA-Z0-9.\-_ ]/g, "").slice(-100);
     const blobPath = `cvs/${Date.now()}-${safeName || "cv.pdf"}`;
 
+    // CVs contain personal details, so they're stored in a private Blob
+    // store -- the resulting URL is not fetchable without authentication.
+    // The admin dashboard reads files back through /api/cvs/[id]/file.
     const blob = await put(blobPath, file, {
-      access: "public",
+      access: "private",
       addRandomSuffix: true,
     });
 
@@ -91,6 +94,7 @@ export async function POST(request: NextRequest) {
         skills: data.skills || null,
         city: data.city || null,
         fileUrl: blob.url,
+        filePathname: blob.pathname,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type || null,

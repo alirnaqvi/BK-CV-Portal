@@ -15,7 +15,7 @@ export default function ThankYouPage() {
           to do right now.
         </p>
         <Link
-          href="/"
+          href="/apply"
           className="mt-8 inline-block rounded-sm border border-ink-500 px-4 py-2 text-sm text-ink-100 transition-colors hover:bg-ink-700"
         >
           Submit another CV

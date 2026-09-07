@@ -24,8 +24,11 @@ model CV {
   city            String?
   notes           String?  // internal notes BK can add later
 
-  // Uploaded file (stored in Vercel Blob)
+  // Uploaded file (stored in a private Vercel Blob store).
+  // filePathname is what's passed to the Blob SDK's get() to read the file back --
+  // fileUrl is not publicly fetchable and is kept only for reference/debugging.
   fileUrl         String
+  filePathname    String   @default("")
   fileName        String
   fileSize        Int?
   fileType        String?
