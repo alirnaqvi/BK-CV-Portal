@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, Layers } from "lucide-react";
 import clsx from "clsx";
 
 export function DomainFilter({
@@ -15,16 +15,28 @@ export function DomainFilter({
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (!open) return;
     function handleClick(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [open]);
 
   function toggle(domain: string) {
     if (selected.includes(domain)) {
@@ -34,57 +46,77 @@ export function DomainFilter({
     }
   }
 
+  const label =
+    selected.length === 0
+      ? "All fields"
+      : selected.length === 1
+      ? selected[0]
+      : `${selected.length} fields`;
+
   return (
     <div className="relative" ref={containerRef}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
+        aria-haspopup="true"
+        aria-expanded={open}
         className={clsx(
-          "flex min-w-[200px] items-center justify-between gap-2 rounded-sm border border-ink-200 bg-white px-3 py-2 text-sm text-ink-700 hover:border-ink-300",
-          open && "border-brass-400 ring-1 ring-brass-300"
+          "flex h-11 w-full items-center gap-2 rounded-[10px] border bg-white px-3.5 text-[15px] transition-shadow sm:w-56",
+          open
+            ? "border-pine-500 ring-4 ring-pine-500/15"
+            : "border-pine-200 hover:border-pine-300",
+          selected.length > 0 ? "font-semibold text-pine-900" : "text-ink"
         )}
       >
-        <span className="truncate">
-          {selected.length === 0
-            ? "All fields / domains"
-            : selected.length === 1
-            ? selected[0]
-            : `${selected.length} domains selected`}
-        </span>
-        <ChevronDown className="h-4 w-4 shrink-0 text-ink-400" aria-hidden />
+        <Layers className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+        <span className="flex-1 truncate text-left">{label}</span>
+        <ChevronDown
+          className={clsx(
+            "h-4 w-4 shrink-0 text-muted transition-transform",
+            open && "rotate-180"
+          )}
+          aria-hidden
+        />
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-1 max-h-72 w-72 overflow-y-auto rounded-sm border border-ink-200 bg-white p-2 shadow-card">
-          {options.length === 0 && (
-            <p className="px-2 py-3 text-sm text-ink-400">No CVs yet.</p>
+        <div className="absolute left-0 right-0 z-20 mt-2 animate-pop-in rounded-xl border border-line bg-white p-1.5 shadow-lift sm:right-auto sm:w-72">
+          {options.length === 0 ? (
+            <p className="px-3 py-3 text-sm text-muted">
+              Fields appear here once the first CV arrives.
+            </p>
+          ) : (
+            <>
+              <ul className="max-h-72 overflow-y-auto">
+                {options.map((domain) => (
+                  <li key={domain}>
+                    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[15px] text-ink hover:bg-pine-50">
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(domain)}
+                        onChange={() => toggle(domain)}
+                        className="checkbox"
+                      />
+                      <span className="truncate">{domain}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              {selected.length > 0 && (
+                <div className="mt-1 border-t border-line pt-1">
+                  <button
+                    type="button"
+                    onClick={() => onChange([])}
+                    className="w-full rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-pine-700 hover:bg-pine-50"
+                  >
+                    Show all fields
+                  </button>
+                </div>
+              )}
+            </>
           )}
-          {options.map((domain) => (
-            <label
-              key={domain}
-              className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-ink-700 hover:bg-ink-50"
-            >
-              <input
-                type="checkbox"
-                checked={selected.includes(domain)}
-                onChange={() => toggle(domain)}
-                className="h-4 w-4 rounded-sm border-ink-300 text-brass-600 focus:ring-brass-300"
-              />
-              {domain}
-            </label>
-          ))}
         </div>
-      )}
-
-      {selected.length > 0 && (
-        <button
-          type="button"
-          onClick={() => onChange([])}
-          className="mt-1 flex items-center gap-1 text-xs text-ink-400 hover:text-ink-600"
-        >
-          <X className="h-3 w-3" aria-hidden />
-          Clear filter
-        </button>
       )}
     </div>
   );

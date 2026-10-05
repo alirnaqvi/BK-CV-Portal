@@ -15,37 +15,46 @@ export function Pagination({
   pageSize: number;
   onPageChange: (page: number) => void;
 }) {
-  const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  if (total === 0) return null;
+
+  const start = (page - 1) * pageSize + 1;
   const end = Math.min(total, page * pageSize);
+  const arrow =
+    "flex h-9 w-9 items-center justify-center rounded-full border border-pine-200 bg-white text-pine-800 hover:border-pine-400 hover:bg-pine-50 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-pine-200 disabled:hover:bg-white";
 
   return (
-    <div className="flex items-center justify-between border-t border-ledger px-4 py-3 text-sm text-ink-500">
+    <nav
+      className="flex flex-col items-center justify-between gap-3 px-1 py-4 text-sm text-muted sm:flex-row"
+      aria-label="Pages"
+    >
       <span>
-        {total === 0 ? "No results" : `Showing ${start}–${end} of ${total}`}
+        Showing {start} to {end} of {total}
       </span>
-      <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => onPageChange(Math.max(1, page - 1))}
-          disabled={page <= 1}
-          className="flex h-8 w-8 items-center justify-center rounded-sm border border-ink-200 text-ink-500 hover:bg-ink-50 disabled:opacity-40"
-          aria-label="Previous page"
-        >
-          <ChevronLeft className="h-4 w-4" aria-hidden />
-        </button>
-        <span className="px-2">
-          Page {page} of {totalPages}
-        </span>
-        <button
-          type="button"
-          onClick={() => onPageChange(Math.min(totalPages, page + 1))}
-          disabled={page >= totalPages}
-          className="flex h-8 w-8 items-center justify-center rounded-sm border border-ink-200 text-ink-500 hover:bg-ink-50 disabled:opacity-40"
-          aria-label="Next page"
-        >
-          <ChevronRight className="h-4 w-4" aria-hidden />
-        </button>
-      </div>
-    </div>
+      {totalPages > 1 && (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onPageChange(Math.max(1, page - 1))}
+            disabled={page <= 1}
+            className={arrow}
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden />
+          </button>
+          <span className="px-1 font-medium text-pine-900">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+            disabled={page >= totalPages}
+            className={arrow}
+            aria-label="Next page"
+          >
+            <ChevronRight className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+      )}
+    </nav>
   );
 }

@@ -1,61 +1,38 @@
+import type { Metadata } from "next";
+import { SiteHeader } from "@/components/SiteHeader";
 import { UploadForm } from "@/components/UploadForm";
+import { SITE } from "@/lib/site";
 
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: "Send your CV",
+  description: `Add your CV to ${SITE.owner.name}'s registry. It takes about two minutes.`,
+};
+
+export default function ApplyPage({
+  searchParams,
+}: {
+  searchParams: { domain?: string | string[] };
+}) {
+  const raw = Array.isArray(searchParams.domain)
+    ? searchParams.domain[0]
+    : searchParams.domain;
+  const initialDomain = (raw ?? "").trim().slice(0, 80);
+
   return (
-    <main className="min-h-dvh lg:flex">
-      <section className="relative flex flex-col justify-between bg-ink-800 px-8 py-12 text-paper sm:px-14 sm:py-16 lg:w-[42%] lg:px-16">
-        <div>
-          <p className="text-sm font-medium tracking-wide text-brass-300">
-            BK Talent Registry
-          </p>
-          <h1 className="mt-6 max-w-md font-serif text-4xl font-semibold leading-tight text-paper sm:text-5xl">
-            Put your CV in front of the right hiring managers.
+    <div className="min-h-dvh pb-16">
+      <SiteHeader showCta={false} />
+      <main className="mx-auto w-full max-w-6xl px-5 sm:px-8">
+        <div className="pb-8 pt-4 sm:pt-8">
+          <h1 className="font-display text-4xl font-extrabold tracking-[-0.025em] text-pine-900 sm:text-5xl">
+            Send your CV
           </h1>
-          <p className="mt-6 max-w-sm text-base leading-relaxed text-ink-100">
-            Bilal Kazmi works with companies across banking, fintech, and
-            technology to fill roles with strong, well-matched talent. Submit
-            your CV once, and it stays on file for opportunities in your
-            field as they come up.
+          <p className="mt-3 max-w-[58ch] text-lg leading-relaxed text-muted">
+            About two minutes. Only your name, email, field and CV are
+            required, marked with an asterisk.
           </p>
         </div>
-
-        <div className="mt-12 flex flex-wrap gap-2 lg:mt-0">
-          {[
-            "Information Technology",
-            "Finance & Banking",
-            "Human Resources",
-            "Operations",
-            "Sales & Marketing",
-          ].map((tag) => (
-            <span
-              key={tag}
-              className="rounded-sm border border-ink-500 px-3 py-1 text-xs text-ink-100"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <p className="mt-12 text-xs text-ink-300 lg:mt-16">
-          Your details are kept on file and shared only with employers
-          relevant to your background.
-        </p>
-      </section>
-
-      <section className="flex-1 px-6 py-12 sm:px-10 sm:py-16 lg:px-16">
-        <div className="mx-auto max-w-2xl">
-          <h2 className="font-serif text-2xl font-semibold text-ink-800">
-            Submit your CV
-          </h2>
-          <p className="mt-2 text-sm text-ink-500">
-            Takes about two minutes. Fields marked with an asterisk are
-            required.
-          </p>
-          <div className="mt-8">
-            <UploadForm />
-          </div>
-        </div>
-      </section>
-    </main>
+        <UploadForm initialDomain={initialDomain} />
+      </main>
+    </div>
   );
 }

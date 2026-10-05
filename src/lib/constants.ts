@@ -22,6 +22,11 @@ export const SUGGESTED_DOMAINS = [
 
 export const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8 MB
 
+// The limit the form enforces before uploading. Vercel rejects request bodies
+// over about 4.5 MB, so anything bigger never reaches the server check above.
+// Raise this to match MAX_FILE_SIZE_BYTES once uploads go straight to Blob.
+export const FORM_MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024; // 4 MB
+
 export const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",

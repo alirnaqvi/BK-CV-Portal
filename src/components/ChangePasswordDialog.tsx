@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { KeyRound, Loader2, X } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { Dialog } from "@/components/ui/Dialog";
 import { Field, Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 
@@ -15,19 +16,10 @@ export function ChangePasswordDialog({ onClose }: { onClose: () => void }) {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Close on Escape.
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape" && !loading) onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [loading, onClose]);
-
   // Close automatically shortly after a successful change.
   useEffect(() => {
     if (!success) return;
-    const t = setTimeout(onClose, 1800);
+    const t = setTimeout(onClose, 2200);
     return () => clearTimeout(t);
   }, [success, onClose]);
 
@@ -35,16 +27,20 @@ export function ChangePasswordDialog({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setError("");
 
+    if (!currentPassword) {
+      setError("Enter your current password");
+      return;
+    }
     if (newPassword.length < MIN_LENGTH) {
-      setError(`New password must be at least ${MIN_LENGTH} characters`);
+      setError(`The new password needs at least ${MIN_LENGTH} characters`);
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("New password and confirmation don't match");
+      setError("The new password and the confirmation don't match");
       return;
     }
     if (newPassword === currentPassword) {
-      setError("New password must be different from the current one");
+      setError("Choose a new password that's different from the current one");
       return;
     }
 
@@ -58,7 +54,7 @@ export function ChangePasswordDialog({ onClose }: { onClose: () => void }) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.error ?? "Could not change the password");
+        setError(data.error ?? "The password wasn't changed. Try again in a minute.");
         setLoading(false);
         return;
       }
@@ -66,109 +62,78 @@ export function ChangePasswordDialog({ onClose }: { onClose: () => void }) {
       setSuccess(true);
       setLoading(false);
     } catch {
-      setError("Could not reach the server. Try again.");
+      setError("Couldn't reach the server, so the password wasn't changed. Try again.");
       setLoading(false);
     }
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !loading) onClose();
-      }}
+    <Dialog
+      titleId="change-password-title"
+      title="Change password"
+      onClose={onClose}
+      locked={loading}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="change-password-title"
-        className="w-full max-w-md rounded-sm border border-ledger bg-white p-6 shadow-lg"
-      >
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2 text-brass-600">
-            <KeyRound className="h-4 w-4" aria-hidden />
-            <h2
-              id="change-password-title"
-              className="font-serif text-xl font-semibold text-ink-800"
-            >
-              Change password
-            </h2>
+      {success ? (
+        <p
+          role="status"
+          className="mt-5 flex items-start gap-2.5 rounded-xl bg-pine-50 px-4 py-3.5 text-[15px] font-medium text-pine-800"
+        >
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-pine-500" aria-hidden />
+          Password changed. Use the new one next time you sign in.
+        </p>
+      ) : (
+        <form onSubmit={handleSubmit} noValidate className="mt-5 flex flex-col gap-4">
+          <Field label="Current password" htmlFor="currentPassword">
+            <Input
+              id="currentPassword"
+              type="password"
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              autoFocus
+            />
+          </Field>
+          <Field
+            label="New password"
+            htmlFor="newPassword"
+            hint={`At least ${MIN_LENGTH} characters`}
+          >
+            <Input
+              id="newPassword"
+              type="password"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </Field>
+          <Field label="Confirm new password" htmlFor="confirmPassword">
+            <Input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </Field>
+
+          {error && (
+            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+              {error}
+            </p>
+          )}
+
+          <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="ghost" onClick={onClose} disabled={loading}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+              {loading ? "Changing password" : "Change password"}
+            </Button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            aria-label="Close"
-            className="rounded-sm p-1 text-ink-400 hover:bg-ink-50 hover:text-ink-700"
-          >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        </div>
-
-        {success ? (
-          <p
-            role="status"
-            className="mt-5 rounded-sm bg-green-50 px-3 py-3 text-sm text-green-800"
-          >
-            Password updated. Use the new password the next time you sign in.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
-            <Field label="Current password" htmlFor="currentPassword" required>
-              <Input
-                id="currentPassword"
-                type="password"
-                autoComplete="current-password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                autoFocus
-                required
-              />
-            </Field>
-            <Field
-              label="New password"
-              htmlFor="newPassword"
-              required
-              hint={`At least ${MIN_LENGTH} characters`}
-            >
-              <Input
-                id="newPassword"
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-            </Field>
-            <Field label="Confirm new password" htmlFor="confirmPassword" required>
-              <Input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </Field>
-
-            {error && (
-              <p role="alert" className="rounded-sm bg-red-50 px-3 py-2 text-sm text-red-700">
-                {error}
-              </p>
-            )}
-
-            <div className="mt-1 flex justify-end gap-2">
-              <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-                {loading ? "Saving..." : "Update password"}
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+        </form>
+      )}
+    </Dialog>
   );
 }

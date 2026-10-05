@@ -1,37 +1,52 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, Source_Serif_4 } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
+import { SITE } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-display",
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
+const body = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-source-serif",
+  variable: "--font-body",
   display: "swap",
-  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "BK Talent Registry",
-  description:
-    "Submit your CV to Bilal Kazmi's talent registry to be considered for opportunities across IT, finance, HR, operations, and more.",
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: `${SITE.name} | Send your CV to ${SITE.owner.name}`,
+    template: `%s | ${SITE.name}`,
+  },
+  description: SITE.description,
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    title: `Send your CV to ${SITE.owner.name}`,
+    description: SITE.description,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Send your CV to ${SITE.owner.name}`,
+    description: SITE.description,
+  },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: "#0B362D",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${sourceSerif.variable}`}>
-      <body className="bg-paper font-sans text-slate-ink antialiased">
-        {children}
-      </body>
+    <html lang="en" className={`${display.variable} ${body.variable}`}>
+      <body className="bg-mist font-sans text-ink antialiased">{children}</body>
     </html>
   );
 }
