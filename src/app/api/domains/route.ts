@@ -4,6 +4,11 @@ import { SUGGESTED_DOMAINS } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
+// Without this, Next.js pre-renders this GET handler at build time and serves
+// that frozen result forever (an empty list if the DB was empty or not set up
+// during the build). The list must be read from the database on every request.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const rows = await prisma.cV.findMany({
