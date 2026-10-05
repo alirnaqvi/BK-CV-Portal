@@ -31,7 +31,7 @@ export const SITE = {
     linkedin: "https://www.linkedin.com/in/muhammadbillalkazmi/",
     // Optional: put a square photo in /public (for example /public/bilal.jpg)
     // and set this to "/bilal.jpg". Leave empty to show the BK monogram.
-    photo: "",
+    photo: "/bilal.jpg",
   },
 
   // Where candidates write to have their details corrected or removed.
