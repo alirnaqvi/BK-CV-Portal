@@ -8,11 +8,26 @@ export const SITE = {
   owner: {
     name: "Bilal Kazmi",
     firstName: "Bilal",
-    // One line under his name. Edit this to match his current LinkedIn headline.
-    headline: "HR and talent acquisition professional",
-    // A short paragraph in his voice or about him. Keep it to facts he's happy
-    // to have public.
-    bio: "Bilal hires for companies across banking, fintech and technology. He keeps this registry so that when a role opens, he already knows who to call.",
+    // One short line under his name (also shown on the link preview image).
+    // His full LinkedIn headline is too long for this spot, so this is the
+    // short version.
+    headline: "HR Business Partner, Talent Development & Digital HR",
+    // The sentence under the main headline on the landing page.
+    intro:
+      "Bilal Kazmi is an HR Business Partner with more than 18 years in financial services, fintech and technology. Add your CV to his registry and he'll have it to hand whenever a role in your field opens.",
+    // "Who reads your CV" on the landing page. One paragraph per entry.
+    bio: [
+      "Bilal has spent more than 18 years in HR across financial services, fintech and technology, working with leadership teams on people strategy for fintech and digital banking.",
+      "He builds leadership pipelines and management trainee programmes, leads digital HR and people analytics work, and champions inclusive workplaces, including opportunities for people with disabilities.",
+    ],
+    // Shown as tags under the bio. Taken from his LinkedIn "About" section.
+    focus: [
+      "Talent development",
+      "Leadership pipelines",
+      "Digital HR and people analytics",
+      "Diversity, inclusion and accessibility",
+      "Employee experience",
+    ],
     linkedin: "https://www.linkedin.com/in/muhammadbillalkazmi/",
     // Optional: put a square photo in /public (for example /public/bilal.jpg)
     // and set this to "/bilal.jpg". Leave empty to show the BK monogram.

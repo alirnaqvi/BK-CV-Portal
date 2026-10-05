@@ -41,9 +41,7 @@ export default function LandingPage() {
               <span className="block">Be considered every time a role fits.</span>
             </h1>
             <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-muted">
-              {owner.name} hires for companies across banking, fintech and
-              technology. Add your CV to his registry and he&apos;ll have it to
-              hand whenever a role in your field opens.
+              {owner.intro}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
               <Link href="/apply" className={buttonClasses("primary", "lg")}>
@@ -138,8 +136,8 @@ export default function LandingPage() {
               Pick your field to start
             </h2>
             <p className="mt-3 max-w-[56ch] text-pine-100">
-              These are the fields {owner.firstName} hires for most often. If
-              yours isn&apos;t here, you can type it in on the form.
+              Choose the field closest to your work. If yours isn&apos;t here,
+              you can type it in on the form.
             </p>
             <ul className="mt-8 flex flex-wrap gap-2.5">
               {FEATURED_DOMAINS.map((domain) => (
@@ -193,9 +191,21 @@ export default function LandingPage() {
                 <p className="text-sm text-muted">{owner.headline}</p>
               </div>
             </div>
-            <p className="mt-5 max-w-[56ch] leading-relaxed text-muted">
-              {owner.bio}
-            </p>
+            <div className="mt-5 max-w-[56ch] space-y-3 leading-relaxed text-muted">
+              {owner.bio.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+            <ul className="mt-5 flex flex-wrap gap-2" aria-label={`What ${owner.firstName} works on`}>
+              {owner.focus.map((item) => (
+                <li
+                  key={item}
+                  className="rounded-full bg-pine-100 px-3 py-1.5 text-sm font-medium text-pine-800"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
             <a
               href={owner.linkedin}
               target="_blank"
