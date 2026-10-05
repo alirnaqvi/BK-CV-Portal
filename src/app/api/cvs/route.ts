@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 import { cvFormSchema } from "@/lib/validation";
 import {
@@ -8,6 +8,15 @@ import {
 } from "@/lib/constants";
 
 export const runtime = "nodejs";
+
+// Short, non-sensitive hint about what failed, so a failed submission can be
+// diagnosed from the browser. Prisma errors expose a code such as P2021
+// (table missing) or P1001 (database unreachable).
+function errorHint(err: unknown): string {
+  const e = err as { code?: string; errorCode?: string };
+  const code = e?.code ?? e?.errorCode;
+  return code ? ` (${code})` : "";
+}
 
 // ---------- POST /api/cvs -- public CV submission ----------
 export async function POST(request: NextRequest) {
@@ -74,14 +83,27 @@ export async function POST(request: NextRequest) {
     // CVs contain personal details, so they're stored in a private Blob
     // store -- the resulting URL is not fetchable without authentication.
     // The admin dashboard reads files back through /api/cvs/[id]/file.
-    const blob = await put(blobPath, file, {
-      access: "private",
-      addRandomSuffix: true,
-    });
+    let blob;
+    try {
+      blob = await put(blobPath, file, {
+        access: "private",
+        addRandomSuffix: true,
+      });
+    } catch (err) {
+      console.error("CV upload to Blob failed", err);
+      const detail =
+        err instanceof Error ? err.message.slice(0, 160) : "unknown error";
+      return NextResponse.json(
+        { error: `File storage error: ${detail}` },
+        { status: 500 }
+      );
+    }
 
     const data = parsed.data;
 
-    const cv = await prisma.cV.create({
+    let cv;
+    try {
+      cv = await prisma.cV.create({
       data: {
         fullName: data.fullName,
         email: data.email,
@@ -99,7 +121,20 @@ export async function POST(request: NextRequest) {
         fileSize: file.size,
         fileType: file.type || null,
       },
-    });
+      });
+    } catch (err) {
+      console.error("CV database insert failed", err);
+      // Don't leave an orphaned file behind when the record couldn't be saved.
+      try {
+        await del(blob.url);
+      } catch (cleanupErr) {
+        console.warn("Could not clean up blob after DB failure", cleanupErr);
+      }
+      return NextResponse.json(
+        { error: `Database error${errorHint(err)}. Please try again later.` },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ ok: true, id: cv.id }, { status: 201 });
   } catch (err) {
