@@ -8,12 +8,15 @@ export function Brand({
   tone = "light",
   suffix,
   compact = false,
+  tailClassName = "max-[359px]:hidden",
 }: {
   href?: string;
   tone?: "light" | "dark";
   suffix?: string;
   /** Drop "Talent Registry" on phones, where the header has less room. */
   compact?: boolean;
+  /** When "Talent Registry" hides on very narrow screens. Ignored if compact. */
+  tailClassName?: string;
 }) {
   return (
     <Link
@@ -32,7 +35,7 @@ export function Brand({
         <span
           className={clsx(
             "font-medium",
-            compact ? "hidden sm:inline" : "max-[359px]:hidden",
+            compact ? "hidden sm:inline" : tailClassName,
             tone === "dark" ? "text-pine-200" : "text-muted"
           )}
         >

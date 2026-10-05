@@ -30,7 +30,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
+      <SiteHeader showAdmin />
 
       <main className="flex-1">
         {/* Hero */}
@@ -251,7 +251,11 @@ export default function LandingPage() {
             <Link href="/apply" className="font-medium text-pine-700 hover:underline">
               Send your CV
             </Link>
-            <Link href="/admin" className="hover:text-pine-800 hover:underline">
+            <Link
+              href="/admin/dashboard"
+              prefetch={false}
+              className="hover:text-pine-800 hover:underline"
+            >
               Admin sign in
             </Link>
           </div>
