@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, FileArchive, LogOut, Search, Loader2 } from "lucide-react";
+import { Download, FileArchive, KeyRound, LogOut, Search, Loader2 } from "lucide-react";
 import { DomainFilter } from "@/components/DomainFilter";
 import { CVTable } from "@/components/CVTable";
 import { Pagination } from "@/components/Pagination";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
 import type { CVItem, CVListResponse } from "@/types/cv";
@@ -27,6 +28,7 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [exporting, setExporting] = useState<"csv" | "zip" | null>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // Debounce the free-text search box.
   useEffect(() => {
@@ -169,10 +171,20 @@ export default function AdminDashboardPage() {
               CV dashboard
             </h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4" aria-hidden />
-            Sign out
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowChangePassword(true)}
+            >
+              <KeyRound className="h-4 w-4" aria-hidden />
+              Change password
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" aria-hidden />
+              Sign out
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -280,6 +292,10 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
+
+      {showChangePassword && (
+        <ChangePasswordDialog onClose={() => setShowChangePassword(false)} />
+      )}
     </main>
   );
 }

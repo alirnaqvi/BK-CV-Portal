@@ -40,3 +40,11 @@ model CV {
   @@index([createdAt])
   @@index([fullName])
 }
+
+// Single-row table holding the admin password hash (id is always "admin").
+// While this table is empty, the ADMIN_PASSWORD environment variable is used.
+model AdminSettings {
+  id           String   @id @default("admin")
+  passwordHash String
+  updatedAt    DateTime @updatedAt
+}

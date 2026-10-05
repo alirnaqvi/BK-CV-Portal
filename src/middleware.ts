@@ -19,7 +19,9 @@ export async function middleware(request: NextRequest) {
   // Submitting a new CV (POST /api/cvs) stays public.
   const isCvListOrDetail =
     pathname === "/api/cvs" || pathname.startsWith("/api/cvs/");
-  const isExport = pathname.startsWith("/api/admin/export");
+  const isExport =
+    pathname.startsWith("/api/admin/export") ||
+    pathname === "/api/admin/change-password";
 
   if (isExport || (isCvListOrDetail && request.method !== "POST")) {
     if (!isAuthed) {
@@ -32,5 +34,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/dashboard/:path*", "/api/cvs", "/api/cvs/:path*", "/api/admin/export/:path*"],
+  matcher: ["/admin/dashboard/:path*", "/api/cvs", "/api/cvs/:path*", "/api/admin/export/:path*", "/api/admin/change-password"],
 };

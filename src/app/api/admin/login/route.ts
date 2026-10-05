@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionToken, SESSION_COOKIE } from "@/lib/auth";
+import { verifyAdminPassword } from "@/lib/admin-password";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json();
-    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (!adminPassword) {
-      return NextResponse.json(
-        { error: "Admin login is not configured. Set ADMIN_PASSWORD." },
-        { status: 500 }
-      );
-    }
+    const valid =
+      typeof password === "string" && (await verifyAdminPassword(password));
 
-    if (typeof password !== "string" || password !== adminPassword) {
+    if (!valid) {
       // Small delay to make brute-forcing marginally slower.
       await new Promise((r) => setTimeout(r, 400));
       return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
